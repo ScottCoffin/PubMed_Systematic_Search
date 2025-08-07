@@ -1,0 +1,30 @@
+"quaternary ammonium" OR 
+8001-54-5[rn] OR “benzalkonium” OR "alkyldimethylbenzylammonium chloride “[tiab] OR 
+7773-52-6[rn] OR “cetylpyridinium” OR "1-Hexadecylpyridin-1-ium”[tiab] OR "1-Hexadecylpyridinium“[tiab] OR 
+68391-01-5[rn] OR “quaternium” OR "Benzylalkyldimethyl ammonium”[tiab] OR 
+68910-56-5[rn] OR “Dialkyldimethyl ammonium” OR 
+“Alkyltrimethyl ammonium” OR 
+75345-27-6[rn] OR “polyquaternium” OR 
+121-54-0 [rn] OR “Benzethonium” OR "hyamine”[tiab] OR 
+“Esterquat” OR 
+53516-76-0[rn] OR "BTC776”[tiab] OR 
+85409-23-0[rn] OR "C12-14-Alkyl(ethylbenzyl)dimethylammonium chloride*”[tiab] OR "Alkylbenzyldimethylammonium chlorideS, C12-14-alkyl[(ethylphenyl)methyl]dimethyl”[tiab] OR "alkyl[(ethylphenyl)methyl]dimethyl”[tiab] OR "C12-14-alkyldimethylethylbenzylammonium chloride*”[tiab] OR "C12-14-alkyl[(ethylphenyl)methyl]dimethylammonium chloride*”[tiab] OR 
+68391-01-5[rn] OR "Benzyl-C12-18-alkyldimethylammonium chloride”[tiab] OR 
+61789-77-3[rn] OR "Quaternary ammonium compounds, dicoco alkyldimethyl, chlorides”[tiab] OR 
+7173-51-5[rn] OR "Didecyldimethylammonium chloride”[tiab] OR 
+68607-28-3[rn] OR "oxybis(ethylene)bis[coco alkyldimethyl, dichlorides”[tiab] OR "Quaternary ammonium compounds, (oxydi-2,1-ethanediyl)bis[coco alkyldimethyl, dichlorides”[tiab] OR 
+122-18-9[rn] OR "Benzylhexadecyldimethylammonium chloride”[tiab] OR 
+61789-80-8[rn] OR "Quaternary ammonium compounds, bis(hydrogenated tallow alkyl)dimethyl, chlorides”[tiab] OR 
+68002-59-5[rn] OR "AQ 2HT75”[tiab] OR "Di-C14-18-alkyldimethylammonium chlorides”[tiab] OR "Quaternary ammonium compounds, di-C14-18-alkyldimethyl, chlorides”[tiab] OR "Tetraalkylammonium compounds, di-C14-18-alkyldimethyl, chlorides”[tiab] OR 
+68607-24-9[rn] OR "Quaternary ammonium compounds, C20-22-alkyltrimethyl, chlorides”[tiab] OR 
+57-09-0[rn] OR "Hexadecyltrimethylammonium bromide”[tiab] OR "Cetyl trimethyl ammonium bromide”[tiab] OR "Hexadecyltrimethylammonium bromide”[tiab] OR 
+112-02-7[rn] OR "Hexadecyl trimethyl ammonium chloride”[tiab] OR "Cetyl trimethyl ammonium chloride”[tiab] OR 
+67846-68-8[rn] OR "Distearoylethyl dimonium chloride”[tiab] OR 
+123-03-5[rn] OR “alkyl pyridinium” OR “alkylpyridinium” OR "Cetylpyridinium chloride”[tiab] OR "1-Hexadecylpyridin-1-ium chloride”[tiab] OR 
+68424-85-1[rn] OR "C12-16-Alkylbenzyldimethylammonium chloride*”[tiab] OR "ADBAC C12-C16”[tiab] OR “C12-16-Alkyldimethylbenzylammonium chloride*”[tiab] OR "SIGMACLEAN”[tiab] OR 
+7173-51-5[rn] OR "Didecyldimethylammonium chloride”[tiab] OR 
+148812-65-1[rn] OR "Didecyl dimethyl ammonium bicarbonate”[tiab]  OR "Didecyldimethylammonium bicarbonate”[tiab] OR 
+148788-55-0[rn] OR "Didecyl dimethyl ammonium carbonate”[tiab] OR "Didecyldimethylammonium carbonate”[tiab] OR 
+107-64-2[rn] OR "Dimethyldioctadecylammonium chloride”[tiab] OR "distearyl dimethyl ammonium chloride “[tiab] OR "distearyldimonium chloride”[tiab] OR 
+51229-78-8[rn] OR "Chloroallyl methenamine chloride”[tiab] OR 
+68391-05-9[rn] OR "C12-C18 dialkyl dimethyl ammonium chloride”

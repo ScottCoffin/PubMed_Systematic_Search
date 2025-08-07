@@ -1,0 +1,278 @@
+---
+title: "EasyPubMed"
+runtime: shiny
+output: 
+  html_document:
+    code_folding: show
+    theme:
+      color-contrast-warnings: false
+      bg: "#202123"
+      fg: "#B8BCC2"
+      primary: "#EA80FC"
+      secondary: "#00DAC6"
+      base_font:
+        google: Prompt
+      heading_font:
+        google: Proza Libre
+---
+
+```{r setup, include=FALSE}
+if (requireNamespace("thematic")) 
+  thematic::thematic_rmd(font = "auto")
+```
+
+# EasyPubMed
+```{r, include=FALSE}
+#devtools::install_github("dami82/easyPubMed")
+# Load the EasyPubMed package
+library(easyPubMed)
+```
+
+```{r}
+#import search terms for QACs
+search_term <- '("quaternary ammonium"[All Fields] OR "benzalkonium"[All Fields] OR "alkyldimethylbenzylammonium chloride"[Title/Abstract] OR "7773-52-6"[EC/RN Number] OR "cetylpyridinium"[All Fields] OR "1-Hexadecylpyridin-1-ium"[Title/Abstract] OR "1-Hexadecylpyridinium"[Title/Abstract] OR "quaternium"[All Fields] OR "Benzylalkyldimethyl ammonium"[Title/Abstract] OR "Dialkyldimethyl ammonium"[All Fields] OR "Alkyltrimethyl ammonium"[All Fields] OR "75345 27 6"[EC/RN Number] OR "polyquaternium"[All Fields] OR "121-54-0"[EC/RN Number] OR "Benzethonium"[All Fields] OR "hyamine"[Title/Abstract] OR "Esterquat"[All Fields] OR "7173-51-5"[EC/RN Number] OR "Didecyldimethylammonium chloride"[Title/Abstract] OR "122-18-9"[EC/RN Number] OR "Benzylhexadecyldimethylammonium chloride"[Title/Abstract] OR "57-09-0"[EC/RN Number] OR "Hexadecyltrimethylammonium bromide"[Title/Abstract] OR "Cetyl trimethyl ammonium bromide"[Title/Abstract] OR "Hexadecyltrimethylammonium bromide"[Title/Abstract] OR "112-02-7"[EC/RN Number] OR "Hexadecyl trimethyl ammonium chloride"[Title/Abstract] OR "Cetyl trimethyl ammonium chloride"[Title/Abstract] OR "123 03 5"[EC/RN Number] OR "alkyl pyridinium"[All Fields] OR "alkylpyridinium"[All Fields] OR "Cetylpyridinium chloride"[Title/Abstract] OR "1-Hexadecylpyridin-1-ium chloride"[Title/Abstract] OR "ADBAC C12-C16"[Title/Abstract] OR "7173-51-5"[EC/RN Number] OR "Didecyldimethylammonium chloride"[Title/Abstract] OR "107-64-2"[EC/RN Number] OR "Dimethyldioctadecylammonium chloride"[Title/Abstract] OR "distearyl dimethyl ammonium chloride"[Title/Abstract] OR "distearyldimonium chloride"[Title/Abstract] OR ("c12 c18"[All Fields] AND ("dialkyl"[All Fields] OR "dialkylated"[All Fields]'
+
+library(readr)
+
+
+my_query <- search_query
+#my_query <- paste0("'",search_query,"'")
+
+# Submit the Query
+epm <- epm_query(my_query) 
+
+# Retrieve Records (xml format)
+epm <- epm_fetch(epm, format = 'xml')
+
+# Extract Information
+epm <- epm_parse(epm)
+
+# All results are stored in an easyPubMed object.
+epmsearch_query <- read_file("search_terms_mod.txt")
+search_query <- gsub("[\r\n]", " ", search_query)
+```
+
+```{r}
+job_meta <- get_epm_meta(x = epm)
+head(job_meta)
+```
+
+```{r}
+raw_records <- get_epm_raw(epm)
+
+# elements are named after the corresponding PMIDs
+head(names(raw_records))
+# elements include raw PubMed records
+first_record <- raw_records[[1]] 
+
+# Show excerpt (from record #1)
+cat(substr(first_record, 1, 1200))
+```
+
+```{r}
+proc_data <- get_epm_data(epm)
+
+# show an excerpt (first 6 records, selected columns)
+slctd_fields <- c('pmid', 'doi', 'jabbrv', 'year', 'month', 'day')
+head(proc_data[, slctd_fields])
+```
+
+
+
+```{r}
+split_boolean_query <- function(query) {
+  # Extract universal NOT at the end, e.g., "NOT D"
+  not_match <- regexpr(" NOT [^()]+$", query)
+  universal_not <- ""
+  if (not_match[1] != -1) {
+    universal_not <- substr(query, not_match[1], nchar(query))
+    query <- substr(query, 1, not_match[1] - 1)
+    query <- trimws(query)
+  }
+  
+  chars <- strsplit(query, "")[[1]]
+  parts <- c()
+  depth <- 0
+  last_split <- 1
+  i <- 1
+  while (i <= length(chars)) {
+    # Track parentheses
+    if (chars[i] == "(") depth <- depth + 1
+    if (chars[i] == ")") depth <- depth - 1
+
+    # Only split at top-level ORs
+    if (depth == 0 && i <= length(chars) - 3) {
+      # Look for ' OR '
+      if (paste(chars[i:(i+2)], collapse="") == " OR") {
+        parts <- c(parts, trimws(paste(chars[last_split:(i-1)], collapse="")))
+        last_split <- i + 3
+        i <- i + 2 # Skip past ' OR'
+      }
+    }
+    i <- i + 1
+  }
+  # Add the last part
+  parts <- c(parts, trimws(paste(chars[last_split:length(chars)], collapse="")))
+  
+  # Re-attach universal NOT if present
+  if (universal_not != "") {
+    parts <- paste(parts, universal_not)
+  }
+  return(parts)
+}
+
+# Example Boolean query
+split_boolean_query("(A AND B) OR (C AND D) NOT E")
+# Returns: [1] "(A AND B) NOT E"  "(C AND D) NOT E"
+
+# Split intelligently
+chunks <- split_boolean_query(search_1)
+print(chunks)
+
+#try <- paste0(chunks_1[1], " NOT ", search_exclude)
+
+chunks
+
+# Now process each chunk as before
+results_list <- lapply(chunks, function(chunk) {
+  epm <- epm_query(chunk)
+  epm <- epm_fetch(epm, format = 'xml')
+  epm <- epm_parse(epm)
+  return(epm)
+})
+
+# Combine results as needed
+ combined_results <- do.call(rbind, results_list)
+```
+
+### Simplified approach using shorter search terms
+```{r}
+getwd()
+search_1 <- read_file("search terms/#1 841 QACs chemical string.txt")
+search_2 <- read_file("search terms/#2 QACs general chemical term string.txt")
+search_exclude <- read_file("search terms/#3 QACs exclusion string.txt")
+```
+
+```{r}
+# Example
+# Your input string
+input <- '"alkyldimethylbenzylammonium chloride"[Title/Abstract] OR "7773-52-6"[EC/RN Number] OR "cetylpyridinium"[All Fields]'
+
+# Split at ' OR ' (with spaces to avoid splitting inside quoted text)
+chunks <- strsplit(input, " OR ", fixed = TRUE)[[1]]
+
+chunks_full <- paste(chunks, "NOT", search_exclude)
+
+results_list <- lapply(chunks_full, function(chunk) {
+  epm <- epm_query(chunk)
+  
+  # Only fetch and parse if records are available
+  if (epm@meta$exp_count > 0) {
+    epm <- epm_fetch(epm, format = 'xml')
+    epm <- epm_parse(epm)
+    return(epm)
+  } else {
+    cat("No records found for chunk, skipping fetch/parse to prevent stalling\n")
+    return(epm)  # or return(NULL) if you want to filter out empty results later
+  }
+})
+
+beepr::beep(1)
+
+# extract dfs
+results_list_df <- lapply(results_list, function(x) {
+  if (isS4(x)) {
+    as.data.frame(x@data)  # or whatever slot holds your data
+  } else {
+    NULL  # or data.frame() if you want to keep empty rows
+  }
+})
+
+results_list_df <- Filter(Negate(is.null), results_list_df)
+
+combined_results <- do.call(rbind, results_list_df)
+```
+
+```{r}
+## apply to full list (Search list 1)
+
+# Split at ' OR ' (with spaces to avoid splitting inside quoted text)
+chunks <- strsplit(search_1, " OR ", fixed = TRUE)[[1]]
+
+chunks_full <- paste(chunks, "NOT", search_exclude)
+
+results_list <- lapply(seq_along(chunks_full), function(i) {
+  cat(sprintf("Querying chunk %d of %d...\n", i, length(chunks_full)))
+  chunk <- chunks_full[[i]]
+  epm <- epm_query(chunk)
+  
+  # Only fetch and parse if records are available
+  if (epm@meta$exp_count > 0) {
+    epm <- epm_fetch(epm, format = 'xml')
+    epm <- epm_parse(epm)
+    return(epm)
+  } else {
+    cat("No records found for chunk, skipping fetch/parse to prevent stalling\n")
+    return(epm)  # or return(NULL) if you want to filter out empty results later
+  }
+})
+
+beepr::beep(1)
+
+# extract dfs
+results_list_df <- lapply(results_list, function(x) {
+  if (isS4(x)) {
+    as.data.frame(x@data)  # or whatever slot holds your data
+  } else {
+    NULL  # or data.frame() if you want to keep empty rows
+  }
+})
+
+results_list_df <- Filter(Negate(is.null), results_list_df)
+
+combined_results <- do.call(rbind, results_list_df)
+
+write.csv(combined_results, "search_df_1.csv")
+```
+
+```{r}
+## apply to full list (Search list 2)
+
+# Split at ' OR ' (with spaces to avoid splitting inside quoted text)
+chunks <- strsplit(search_2, " OR ", fixed = TRUE)[[1]]
+
+chunks_full <- paste(chunks, "NOT", search_exclude)
+
+results_list <- lapply(seq_along(chunks_full), function(i) {
+  cat(sprintf("Querying chunk %d of %d...\n", i, length(chunks_full)))
+  chunk <- chunks_full[[i]]
+  epm <- epm_query(chunk)
+  
+  # Only fetch and parse if records are available
+  if (epm@meta$exp_count > 0) {
+    epm <- epm_fetch(epm, format = 'xml')
+    epm <- epm_parse(epm)
+    return(epm)
+  } else {
+    cat("No records found for chunk, skipping fetch/parse to prevent stalling\n")
+    return(epm)  # or return(NULL) if you want to filter out empty results later
+  }
+})
+
+beepr::beep(1)
+
+# extract dfs
+results_list_df <- lapply(results_list, function(x) {
+  if (isS4(x)) {
+    as.data.frame(x@data)  # or whatever slot holds your data
+  } else {
+    NULL  # or data.frame() if you want to keep empty rows
+  }
+})
+
+results_list_df <- Filter(Negate(is.null), results_list_df)
+
+combined_results <- do.call(rbind, results_list_df)
+
+write.csv(combined_results, "search_df_2.csv")
+```
