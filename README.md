@@ -3,13 +3,12 @@
 [![R-CMD-check](https://github.com/ScottCoffin/PubMed_Systematic_Search/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ScottCoffin/PubMed_Systematic_Search/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/ScottCoffin/PubMed_Systematic_Search/graph/badge.svg)](https://app.codecov.io/gh/ScottCoffin/PubMed_Systematic_Search)
 
+<img src="pubmedsearch_logo.png" align="right" width="160" alt="PubMed Search Workflow logo" />
+
 Reusable R helpers for systematic PubMed searches. The repository is organized
 as a lightweight R package so collaborators can install the search utilities,
 keep study-specific search strings in plain-text files, and run repeatable
 exports without editing notebooks.
-
-The original quaternary ammonium compound (QAC) search has been moved to
-`inst/examples/qac/` and should be treated as an example project.
 
 ## Repository Layout
 
@@ -17,8 +16,8 @@ The original quaternary ammonium compound (QAC) search has been moved to
   combining, and exporting PubMed searches.
 - `exec/run_pubmed_search.R`: command-line runner for collaborators who do
   not need to write R code.
-- `inst/examples/qac/`: QAC-specific search terms, legacy exploratory notebooks,
-  and example commands.
+- `inst/examples/qac/`: QAC example study with search-specific terms and
+  example commands.
 - `tests/`: unit tests for query parsing and construction.
 - `outputs/`: recommended local output directory; ignored by Git.
 
