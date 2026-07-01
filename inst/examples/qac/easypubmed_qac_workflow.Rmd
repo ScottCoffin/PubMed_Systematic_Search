@@ -48,7 +48,7 @@ epm <- epm_fetch(epm, format = 'xml')
 epm <- epm_parse(epm)
 
 # All results are stored in an easyPubMed object.
-epmsearch_query <- read_file("search_terms_mod.txt")
+search_query <- read_file("search_terms/qac_full_query_with_exclusions.txt")
 search_query <- gsub("[\r\n]", " ", search_query)
 ```
 
@@ -148,9 +148,9 @@ results_list <- lapply(chunks, function(chunk) {
 ### Simplified approach using shorter search terms
 ```{r}
 getwd()
-search_1 <- read_file("search terms/#1 841 QACs chemical string.txt")
-search_2 <- read_file("search terms/#2 QACs general chemical term string.txt")
-search_exclude <- read_file("search terms/#3 QACs exclusion string.txt")
+search_1 <- read_file("search_terms/qac_chemical_string_841.txt")
+search_2 <- read_file("search_terms/qac_general_chemical_terms.txt")
+search_exclude <- read_file("search_terms/qac_exclusion_string.txt")
 ```
 
 ```{r}

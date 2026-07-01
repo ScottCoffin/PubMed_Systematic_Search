@@ -1,0 +1,197 @@
+---
+title: "Reusable PubMed Search Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reusable PubMed Search Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+This vignette shows how to use `pubmedsearchworkflow` to keep PubMed systematic
+searches reusable across projects. The package separates study-specific search
+strings from the R code that reads, chunks, runs, combines, and exports PubMed
+records.
+
+The bundled quaternary ammonium compound (QAC) search is an example study. Use
+its file layout as a template for new searches rather than editing the package
+functions.
+
+## Install and Load
+
+Install dependencies and this package from a fresh R session opened at the
+repository root. A fresh session matters on Windows because packages such as
+`cli`, `fs`, and `rlang` can be locked if they are already loaded by RStudio or
+another package.
+
+```{r, eval = FALSE}
+install.packages("remotes")
+remotes::install_deps(dependencies = TRUE, upgrade = "never")
+system2(file.path(R.home("bin"), "R"), c("CMD", "INSTALL", "."))
+```
+
+If installation fails with a message such as `cannot remove prior installation`
+or `namespace 'fs' ... is being loaded`, restart R and run the same commands
+before loading `devtools`, `pkgdown`, or this package.
+
+Load the package:
+
+```{r}
+library(pubmedsearchworkflow)
+```
+
+## Locate Example Search Files
+
+When working from the source checkout, paths such as `inst/examples/...` are
+available directly. After installation, use `system.file()` to locate bundled
+examples inside the installed package.
+
+```{r}
+qac_include <- system.file(
+  "examples/qac/search_terms/qac_chemical_string_841.txt",
+  package = "pubmedsearchworkflow"
+)
+
+qac_exclude <- system.file(
+  "examples/qac/search_terms/qac_exclusion_string.txt",
+  package = "pubmedsearchworkflow"
+)
+
+smoke_query <- system.file(
+  "examples/smoke/pubmed_pmid_query.txt",
+  package = "pubmedsearchworkflow"
+)
+
+file.exists(c(qac_include, qac_exclude, smoke_query))
+```
+
+## Read and Normalize Queries
+
+Study teams should store PubMed search strings in plain-text files. This makes
+review, version control, and reuse easier than embedding long Boolean strings in
+notebooks.
+
+```{r}
+include_query <- read_pubmed_query(smoke_query)
+include_query
+```
+
+`read_pubmed_query()` collapses line breaks and repeated whitespace so query
+files can be formatted for readability.
+
+```{r}
+normalize_pubmed_query(c('"alpha"[Title]', " OR ", ' "beta"[Title]'))
+```
+
+## Add Exclusions
+
+Use `build_pubmed_query()` to combine an include query with optional exclusions.
+The helper wraps both sides in parentheses to preserve intent.
+
+```{r}
+build_pubmed_query(
+  include_query = '"alpha"[Title]',
+  exclude_query = '"review"[Publication Type]'
+)
+```
+
+## Split Large Top-Level OR Queries
+
+Large chemical-name searches often need to be split into smaller PubMed requests.
+`split_pubmed_or_query()` splits only top-level `OR` operators. It preserves
+quoted strings and nested parenthetical logic.
+
+```{r}
+example_query <- '("a"[Title] AND ("b"[Title] OR "c"[Title])) OR "d OR e"[Title] OR "f"[Title]'
+split_pubmed_or_query(example_query)
+```
+
+For the QAC example, the large include file can be split into chunks before
+submitting to PubMed.
+
+```{r}
+qac_chunks <- split_pubmed_or_query(read_pubmed_query(qac_include))
+length(qac_chunks)
+head(qac_chunks, 2)
+```
+
+## Run a Live PubMed Search
+
+Live PubMed calls are intentionally not evaluated in this vignette so package
+checks remain deterministic. Run this smoke test manually when you want to
+verify local network access and `easyPubMed` behavior.
+
+```{r, eval = FALSE}
+results <- run_pubmed_search(
+  include_query = read_pubmed_query(smoke_query),
+  chunk = FALSE
+)
+
+records <- combine_pubmed_data(results)
+records[, c("pmid", "title", "year", "jabbrv")]
+```
+
+For a broad query, start with a small chunk limit before launching a full search:
+
+```{r, eval = FALSE}
+results <- run_pubmed_search(
+  include_query = read_pubmed_query(qac_include),
+  exclude_query = read_pubmed_query(qac_exclude),
+  chunk = TRUE,
+  limit = 2,
+  sleep = 1
+)
+
+records <- combine_pubmed_data(results)
+```
+
+Remove `limit = 2` only after the smoke run succeeds.
+
+## Export Results
+
+Use `write_pubmed_csv()` to combine records, deduplicate by PMID, create parent
+directories, and write a CSV.
+
+```{r, eval = FALSE}
+write_pubmed_csv(results, "outputs/qac_search_smoke.csv")
+```
+
+## Command-Line Runner
+
+Collaborators who do not need to write R code can use the bundled runner from
+the repository root:
+
+```{r, eval = FALSE}
+system2(
+  "Rscript",
+  c(
+    "exec/run_pubmed_search.R",
+    "--include", "inst/examples/smoke/pubmed_pmid_query.txt",
+    "--output", "outputs/smoke_pubmed_pmid.csv",
+    "--no-chunk"
+  )
+)
+```
+
+The runner uses the same package functions as the R API. Use `--limit` for
+smoke tests, `--sleep` to pause between PubMed requests, and `--quiet` to
+suppress package-level progress messages.
+
+## Recommended Project Pattern
+
+For a new systematic search:
+
+1. Copy `inst/examples/qac/` to a new project-specific folder.
+2. Replace the include and exclusion text files with the new search strategy.
+3. Run a one-PMID or low-limit smoke test.
+4. Commit search-term files and workflow notes.
+5. Keep generated CSV files in `outputs/` unless they are final curated
+   deliverables.

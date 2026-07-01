@@ -1,5 +1,7 @@
 Version: 1.0
 
+BuildType: Package
+
 RestoreWorkspace: Default
 SaveWorkspace: Default
 AlwaysSaveHistory: Default

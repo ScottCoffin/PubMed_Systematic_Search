@@ -1,0 +1,31 @@
+Package: pubmedsearchworkflow
+Title: Reusable PubMed Systematic Search Workflow
+Version: 0.1.0
+Authors@R:
+    person("Dr. Scott", "Coffin", role = c("aut", "cre"), email = "scott.l.coffin@gmail.com")
+Description: Helpers for building, chunking, running, and exporting PubMed
+    searches used in systematic-review workflows. The package keeps study-specific
+    search strings outside the reusable code so collaborators can adapt the
+    workflow to new topics.
+License: GPL-3
+URL: https://github.com/ScottCoffin/PubMed_Systematic_Search
+BugReports: https://github.com/ScottCoffin/PubMed_Systematic_Search/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1)
+Imports:
+    cli,
+    crayon,
+    easyPubMed,
+    methods,
+    utils
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Remotes:
+    dami82/easyPubMed
+VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -1,0 +1,15 @@
+^\.git$
+^\.agents$
+^\.codex$
+^\.gitignore$
+^LICENSE\.md$
+^\.Rproj\.user$
+^PubMed_Systematic_Search_new\.Rproj$
+^outputs$
+^outputs/
+^.*\.Rhistory$
+^.*\.RData$
+^.*\.Ruserdata$
+^\.github$
+^doc$
+^Meta$
